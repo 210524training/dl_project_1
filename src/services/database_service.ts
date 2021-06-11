@@ -5,6 +5,7 @@ import Log from '../log';
 import Employee from '../models/employee';
 import EmployeeSecure from '../models/employee_secure';
 import ReimbursmentRequest from '../models/reimburse_request';
+import { Department } from '../models/my_types';
 
 const docClient = new AWS.DynamoDB.DocumentClient({
   region: 'us-west-2',
@@ -27,7 +28,7 @@ export async function addEmployee(employee: Employee): Promise<boolean> {
 
   try {
     await docClient.put(params).promise();
-    Log.debug(`Added Employee: ${employee.username} without an error.`);
+    Log.info(`Added Employee: ${employee.username} without an error.`);
 
     // console.log('success');
     return true;
@@ -52,7 +53,7 @@ export async function addRequest(request: ReimbursmentRequest): Promise<boolean>
 
   try {
     await docClient.put(params).promise();
-    Log.debug(`Added Request: ${request.requestId} without an error.`);
+    Log.info(`Added Request: ${request.requestId} without an error.`);
 
     // console.log('success');
     return true;
@@ -73,13 +74,14 @@ export async function getEmployee(inputId: number): Promise<EmployeeSecure | und
     Key: {
       Employee_Id: inputId,
     },
-    ProjectionExpression: '#id, #u, #d, #fn, #ls, #m',
+    ProjectionExpression: '#id, #u, #d, #fn, #ls, #r, #m',
     ExpressionAttributeNames: {
       '#id': 'employeeId',
       '#u': 'username',
       '#d': 'department',
       '#fn': 'firstName',
       '#ls': 'lastName',
+      '#r': 'role',
       '#m': 'managerId',
     },
   };
@@ -88,7 +90,7 @@ export async function getEmployee(inputId: number): Promise<EmployeeSecure | und
     const returnEmployee = await docClient.get(params).promise();
 
     if(returnEmployee.Item?.employeeId) {
-      Log.debug(`Retrived Employee: ${returnEmployee.Item.username} with out an error.`);
+      Log.info(`Retrived Employee: ${returnEmployee.Item.username} with out an error.`);
 
       return returnEmployee.Item as EmployeeSecure | undefined;
     }
@@ -96,6 +98,7 @@ export async function getEmployee(inputId: number): Promise<EmployeeSecure | und
     Log.error(`Error on getEmployee: ${inputId} attempt. `, error);
     return undefined;
   }
+  Log.info(`Did not find Employee: ${inputId}`);
   return undefined;
 }
 
@@ -110,7 +113,7 @@ export async function getrequest(inputId: number): Promise<ReimbursmentRequest |
     Key: {
       Request_ID: inputId,
     },
-    ProjectionExpression: '#id, #eid, #etp, #el, #ed, #etm, #ec, #en',
+    ProjectionExpression: '#id, #eid, #etp, #el, #ed, #etm, #ec, #st, #en',
     ExpressionAttributeNames: {
       '#id': 'requestId',
       '#eid': 'employeeId',
@@ -119,6 +122,7 @@ export async function getrequest(inputId: number): Promise<ReimbursmentRequest |
       '#ed': 'eventDate',
       '#etm': 'eventTime',
       '#ec': 'eventCost',
+      '#st': 'status',
       '#en': 'extraNotes',
     },
   };
@@ -127,7 +131,7 @@ export async function getrequest(inputId: number): Promise<ReimbursmentRequest |
     const returnRequest = await docClient.get(params).promise();
 
     if(returnRequest.Item?.employeeId) {
-      Log.debug(`Retrived Request: ${returnRequest.Item.requestId} with out an error.`);
+      Log.info(`Retrived Request: ${returnRequest.Item.requestId} with out an error.`);
 
       return returnRequest.Item as ReimbursmentRequest | undefined;
     }
@@ -135,5 +139,52 @@ export async function getrequest(inputId: number): Promise<ReimbursmentRequest |
     Log.error(`Error on getRequest: ${inputId} attempt. `, error);
     return undefined;
   }
+  Log.info(`Did not find request: ${inputId}`);
   return undefined;
 }
+
+/**
+ * Retrives all employees in a department.
+ * @param department (Department)
+ * @returns EmployeeSecure[] | undefined
+ */
+// eslint-disable-next-line max-len
+export async function getEmployeesByDepartment(department: Department): Promise<EmployeeSecure[] | undefined> {
+  //
+  const params: AWS.DynamoDB.DocumentClient.ScanInput = {
+    TableName: 'P1_Employees',
+    FilterExpression: '#e = :e',
+    ExpressionAttributeValues: {
+      ':e': department,
+    },
+    ExpressionAttributeNames: {
+      '#e': 'department',
+    },
+  };
+  try {
+    const result = await docClient.scan(params).promise();
+    const employees: EmployeeSecure[] = [];
+
+    result.Items?.forEach((element) => {
+      employees.push(new EmployeeSecure(
+        element.employeeId,
+        element.username,
+        element.department,
+        element.firstName,
+        element.lastName,
+        element.role,
+        element.managerId,
+      ));
+    });
+
+    if(employees.length > 0) {
+      Log.info(`Retrived employees from ${department} with out an error.`);
+      return employees;
+    }
+  } catch(error) {
+    Log.error(`Error on getEmployeesByDepartment: ${department} attempt. `, error);
+  }
+  Log.info(`Did not find employees from Department: ${department}`);
+  return undefined;
+}
+// get requests by employee
