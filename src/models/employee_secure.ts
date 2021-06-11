@@ -1,22 +1,20 @@
-export type Department = 'Marketing' | 'Shipping' | 'IT' | 'Human Resoures';
+import { Department } from './employee';
 
 /**
- * Models the data of a Employee
+ * Models the non-private data of a user. Does not store passwords.
  *
  * @param employyeeId Used as the users table hash key. (number)
  * @param username Must not match existing usernames in the employee's table. (string)
- * @param password (string)
  * @param department Name of department. ('Marketing' | 'Shipping' | 'IT' | 'Human Resoures')
  * @param firstName Employee's first name (string)
  * @param lastName Employee's last name (string)
  * @param managerId EmployeeId of this employee's direct manager (number)
  * @
  */
-export default class Employee {
+export default class EmployeeSecure {
   constructor(
     public employyeeId: number,
     public username: string,
-    public password: string,
     public department: Department,
     public firstName: string,
     public lastName: string,
@@ -25,4 +23,4 @@ export default class Employee {
 }
 
 // example user declatration
-// const employee = new employee(1, 'username', 'password', 'IT', 'first name', 'last name', 1);
+// const employee = new EmployeeSecure(1, 'username', 'IT', 'first name', 'last name', 1);

@@ -12,7 +12,7 @@ export type Event = 'University Course' | 'Seminar' | 'Cerification Prep-Class' 
  * @param eventCost (number)
  * @param extraNotes Any extra notes. (string[])
  */
-export default class ReibursmentRequest {
+export default class ReimbursmentRequest {
   constructor(
     public requestId: number,
     public employeeId: number,
