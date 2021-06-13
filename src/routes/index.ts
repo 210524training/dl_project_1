@@ -3,7 +3,7 @@ import Log from '../log';
 import Employee from '../models/employee';
 import EmployeeSecure from '../models/employee_secure';
 import * as Database from '../services/database_service';
-// import testRouter from './testRouter';
+import EmployeeRouter from './employee_router';
 
 const baseRouter = Router();
 
@@ -22,23 +22,6 @@ baseRouter.get('/', (req, res) => {
   });
 });
 
-baseRouter.get('/isLogedIn', (req, res) => {
-  Log.info('Request hit baseRouter: .get /isLogedIn');
-  // getEmployee();
-
-  if(req.session.isLoggedIn) {
-    Log.info(`Responded with ${req.session.employee}`);
-    res.json(req.session.employee);
-  } else {
-    Log.info('Responded with false');
-    res.json(
-      {
-        result: 'false',
-      },
-    );
-  }
-});
-
 baseRouter.post('/login', async (req: express.Request<unknown, unknown, { username: string, password: string }, unknown, {}>, res) => {
   Log.info('Request hit baseRouter.post /login .');
   const { username, password } = req.body;
@@ -52,14 +35,24 @@ baseRouter.post('/login', async (req: express.Request<unknown, unknown, { userna
     req.session.isLoggedIn = true;
     req.session.employee = employee;
     Log.info(`Responded with ${req.session.employee}`);
-    res.json(req.session.employee);
+    res.status(202).send();
   }
-
-  /* res.sendFile('index.html', {
-    root: 'src/public/views/',
-  }); */
 });
 
-// baseRouter.use('/api/v1/test', testRouter);
+export async function logout(req: express.Request, res: express.Response): Promise<void> {
+  if(req.session.employee) {
+    const { username } = req.session.employee;
+
+    req.session.destroy(() => {
+      Log.info(`${username} logged out`);
+    });
+  }
+  // If they aren't logged in, we don't need to do anything
+
+  res.status(202).send();
+}
+
+baseRouter.post('/logout', logout);
+baseRouter.use('/api/v1/test', EmployeeRouter);
 
 export default baseRouter;

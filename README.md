@@ -7,6 +7,8 @@
 - /login
   - Post
     - Takes username: string, password: string. Checks inputs against the database. If successful sets session Employee and session isLoggedIn and returns true. If unsuccessful returns false.
+- /logout
+  - destroys session.
 
 ### **Employee** (/api/v1/employee)
 

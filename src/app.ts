@@ -27,7 +27,7 @@ app.use('/', baseRouter);
 const { BAD_REQUEST } = StatusCodes;
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   console.log('Our custom error handler');
-  Log.error(err);
+  // Log.error(err);
   res.status(BAD_REQUEST).json({
     error: err.message,
   });

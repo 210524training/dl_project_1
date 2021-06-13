@@ -40,6 +40,31 @@ export async function addEmployee(employee: Employee): Promise<boolean> {
 }
 
 /**
+ * Update an employee in the employee table.
+ * @param employee Object to update in the table. (Employee)
+ * @returns Boolean - false on error
+ */
+export async function updateEmployee(employee: Employee): Promise<boolean> {
+  // console.log(car.price);
+
+  const params: AWS.DynamoDB.DocumentClient.PutItemInput = {
+    TableName: 'P1_Employees',
+    Item: employee,
+  };
+
+  try {
+    await docClient.put(params).promise();
+    Log.info(`Updated Employee: ${employee.username} without an error.`);
+
+    // console.log('success');
+    return true;
+  } catch(error) {
+    Log.error(`Error on updateEmployee: ${employee.username} attempt. `, error);
+    return false;
+  }
+}
+
+/**
  * Adds an reimbursment request to the requests table.
  * @param request Object to add to the table. (ReimbursmentRequest)
  * @returns Boolean - false on error
