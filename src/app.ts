@@ -15,6 +15,8 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, './public')));
+Log.info(`__dirname: ${__dirname}`);
+
 app.use(expressSession({
   secret: 'whatever-probably-should-be-from-env-vars',
   cookie: {},

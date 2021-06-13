@@ -1,4 +1,5 @@
-import Log from '../../log';
+/* eslint-disable max-len */
+// import Log from '../../log';
 
 const body = document.getElementsByTagName('body')[0];
 
@@ -8,6 +9,7 @@ const navbar = `<nav class="navbar navbar-nav navbar-expand-md navbar-dark bg-da
 </nav>`;
 
 const navbarContent = `<a class="navbar-brand" href="/">GrubDash</a>
+// eslint-disable-next-line max-len
 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
   <span class="navbar-toggler-icon"></span>
 </button>
@@ -29,8 +31,9 @@ if(divFluid) {
 }
 
 async function test1() {
-  const usernameInput = document.getElementById('testInput') as HTMLInputElement;
-  Log.info('Ran test1');
+  console.log('Ran test1');
+  /* const usernameInput = document.getElementById('testInput') as HTMLInputElement;
+
   if(!usernameInput) {
     console.log('Failed due to missing inputs!');
     return;
@@ -52,5 +55,7 @@ async function test1() {
 
   sessionStorage.setItem('user', JSON.stringify(data));
 
-  window.location.href = 'http://localhost:3000/views/index.html';
+  window.location.href = 'http://localhost:3000/views/index.html'; */
 }
+
+// export = 'Game';
