@@ -33,7 +33,7 @@ function exec(cmd: string, loc: string): Promise<void> {
     await remove('./build/');
     // Copy front-end files
     await copy('./src/public/views', './build/public/views');
-    await copy('./src/public/css', './build/public/css');
+    // await copy('./src/public/css', './build/public/css');
     // Copy back-end files
     await exec('tsc', './');
   } catch(err) {

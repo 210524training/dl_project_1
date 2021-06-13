@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 /* eslint-disable import/prefer-default-export */
 // handles database interaction
 import * as AWS from 'aws-sdk';
@@ -72,7 +73,7 @@ export async function getEmployee(inputId: number): Promise<EmployeeSecure | und
   const params: AWS.DynamoDB.DocumentClient.GetItemInput = {
     TableName: 'P1_Employees',
     Key: {
-      Employee_Id: inputId,
+      employeeId: inputId,
     },
     ProjectionExpression: '#id, #u, #d, #fn, #ls, #r, #m',
     ExpressionAttributeNames: {
@@ -163,19 +164,7 @@ export async function getEmployeesByDepartment(department: Department): Promise<
   };
   try {
     const result = await docClient.scan(params).promise();
-    const employees: EmployeeSecure[] = [];
-
-    result.Items?.forEach((element) => {
-      employees.push(new EmployeeSecure(
-        element.employeeId,
-        element.username,
-        element.department,
-        element.firstName,
-        element.lastName,
-        element.role,
-        element.managerId,
-      ));
-    });
+    const employees: EmployeeSecure[] = result.Items as EmployeeSecure[];
 
     if(employees.length > 0) {
       Log.info(`Retrived employees from ${department} with out an error.`);
@@ -188,3 +177,40 @@ export async function getEmployeesByDepartment(department: Department): Promise<
   return undefined;
 }
 // get requests by employee
+
+export async function checkLogin(username: string, password: string): Promise<EmployeeSecure | undefined> {
+  //
+  const params: AWS.DynamoDB.DocumentClient.ScanInput = {
+    TableName: 'P1_Employees',
+    ProjectionExpression: '#id, #u, #d, #fn, #ls, #r, #m',
+    FilterExpression: '#u = :u AND #p = :p',
+    ExpressionAttributeValues: {
+      ':u': username,
+      ':p': password,
+    },
+    ExpressionAttributeNames: {
+      '#id': 'employeeId',
+      '#u': 'username',
+      '#p': 'password',
+      '#d': 'department',
+      '#fn': 'firstName',
+      '#ls': 'lastName',
+      '#r': 'role',
+      '#m': 'managerId',
+    },
+  };
+  try {
+    const result = await docClient.scan(params).promise();
+    const employees: EmployeeSecure[] = result.Items as EmployeeSecure[];
+
+    if(employees.length > 0) {
+      Log.info(`Successfuly found Employee: ${username} with out an error.`);
+      console.log(employees[0]);
+      return employees[0];
+    }
+  } catch(error) {
+    Log.error(`Error on checkLogin: ${username} attempt. `, error);
+  }
+  Log.info(`Did not find 'Employee: ${username}`);
+  return undefined;
+}
