@@ -84,7 +84,32 @@ export async function addRequest(request: ReimbursmentRequest): Promise<boolean>
     // console.log('success');
     return true;
   } catch(error) {
-    Log.error(`Error on addReouest: ${request.requestId} attempt. `, error);
+    Log.error(`Error on addRequest: ${request.requestId} attempt. `, error);
+    return false;
+  }
+}
+
+/**
+ * Updates a reimbursment request in the requests table.
+ * @param request Object to updated in the table. (ReimbursmentRequest)
+ * @returns Boolean - false on error
+ */
+export async function updateRequest(request: ReimbursmentRequest): Promise<boolean> {
+  // console.log(car.price);
+
+  const params: AWS.DynamoDB.DocumentClient.PutItemInput = {
+    TableName: 'P1_Requests',
+    Item: request,
+  };
+
+  try {
+    await docClient.put(params).promise();
+    Log.info(`Updated Request: ${request.requestId} without an error.`);
+
+    // console.log('success');
+    return true;
+  } catch(error) {
+    Log.error(`Error on updateRequest: ${request.requestId} attempt. `, error);
     return false;
   }
 }
@@ -133,7 +158,7 @@ export async function getEmployee(inputId: number): Promise<EmployeeSecure | und
  * @param inputId The requestId of the request that will be retrived. (number)
  * @returns ReimbursmentRequest | undefined
  */
-export async function getrequest(inputId: number): Promise<ReimbursmentRequest | undefined> {
+export async function getRequest(inputId: number): Promise<ReimbursmentRequest | undefined> {
   const params: AWS.DynamoDB.DocumentClient.GetItemInput = {
     TableName: 'P1_Requests',
     Key: {
@@ -160,6 +185,39 @@ export async function getrequest(inputId: number): Promise<ReimbursmentRequest |
       Log.info(`Retrived Request: ${returnRequest.Item.requestId} with out an error.`);
 
       return returnRequest.Item as ReimbursmentRequest | undefined;
+    }
+  } catch(error) {
+    Log.error(`Error on getRequest: ${inputId} attempt. `, error);
+    return undefined;
+  }
+  Log.info(`Did not find request: ${inputId}`);
+  return undefined;
+}
+
+/**
+ * Retrives all requests of an employee.
+ * @param inputId The EmployeeId of the requests that will be retrived. (number)
+ * @returns ReimbursmentRequest[] | undefined
+ */
+export async function getMyRequests(inputId: number): Promise<ReimbursmentRequest[] | undefined> {
+  const params: AWS.DynamoDB.DocumentClient.ScanInput = {
+    TableName: 'P1_Requests',
+    FilterExpression: '#eid = : eid',
+    ExpressionAttributeNames: {
+      '#eid': 'employeeId',
+    },
+    ExpressionAttributeValues: {
+      ':eid': inputId,
+    },
+  };
+
+  try {
+    const returnRequest = await docClient.scan(params).promise();
+    const requests = returnRequest.Items as ReimbursmentRequest[];
+    if(requests.length > 0) {
+      Log.info(`Retrived Request: ${requests[0].requestId} with out an error.`);
+
+      return requests as ReimbursmentRequest[] | undefined;
     }
   } catch(error) {
     Log.error(`Error on getRequest: ${inputId} attempt. `, error);
