@@ -71,7 +71,7 @@ export async function updateEmployee(employee: Employee): Promise<boolean> {
  */
 export async function addRequest(request: ReimbursmentRequest): Promise<boolean> {
   // console.log(car.price);
-
+  
   const params: AWS.DynamoDB.DocumentClient.PutItemInput = {
     TableName: 'P1_Requests',
     Item: request,
@@ -162,7 +162,7 @@ export async function getRequest(inputId: number): Promise<ReimbursmentRequest |
   const params: AWS.DynamoDB.DocumentClient.GetItemInput = {
     TableName: 'P1_Requests',
     Key: {
-      Request_ID: inputId,
+      requestId: inputId,
     },
     ProjectionExpression: '#id, #eid, #etp, #el, #ed, #etm, #ec, #st, #en',
     ExpressionAttributeNames: {
@@ -202,7 +202,7 @@ export async function getRequest(inputId: number): Promise<ReimbursmentRequest |
 export async function getMyRequests(inputId: number): Promise<ReimbursmentRequest[] | undefined> {
   const params: AWS.DynamoDB.DocumentClient.ScanInput = {
     TableName: 'P1_Requests',
-    FilterExpression: '#eid = : eid',
+    FilterExpression: '#eid = :eid',
     ExpressionAttributeNames: {
       '#eid': 'employeeId',
     },
@@ -215,12 +215,12 @@ export async function getMyRequests(inputId: number): Promise<ReimbursmentReques
     const returnRequest = await docClient.scan(params).promise();
     const requests = returnRequest.Items as ReimbursmentRequest[];
     if(requests.length > 0) {
-      Log.info(`Retrived Request: ${requests[0].requestId} with out an error.`);
+      Log.info('Retrived MyRequests with out an error.');
 
       return requests as ReimbursmentRequest[] | undefined;
     }
   } catch(error) {
-    Log.error(`Error on getRequest: ${inputId} attempt. `, error);
+    Log.error(`Error on getMyRequests: ${inputId} attempt. `, error);
     return undefined;
   }
   Log.info(`Did not find request: ${inputId}`);

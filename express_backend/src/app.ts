@@ -5,13 +5,17 @@ import 'express-async-errors';
 import path from 'path';
 import StatusCodes from 'http-status-codes';
 import dotenv from 'dotenv';
+import cors from 'cors';
 import Log from './log';
 import baseRouter from './routes/index';
 
 dotenv.config({});
 
 const app = express();
-
+app.use(cors({
+  credentials: true,
+  origin: 'http://localhost:3006',
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, './public')));

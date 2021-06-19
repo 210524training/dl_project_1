@@ -4,6 +4,7 @@ import Employee from '../models/employee';
 import EmployeeSecure from '../models/employee_secure';
 import * as Database from '../services/database_service';
 import EmployeeRouter from './employee_router';
+import ReimbursementRouter from './reimbursement_router';
 
 const baseRouter = Router();
 
@@ -35,8 +36,10 @@ baseRouter.post('/login', async (req: express.Request<unknown, unknown, { userna
     req.session.isLoggedIn = true;
     req.session.employee = employee;
     Log.info(`Responded with ${req.session.employee}`);
-    res.status(202).send();
+    res.json(req.session.employee);
+    // res.status(202).send();
   }
+  res.status(404).send();
 });
 
 export async function logout(req: express.Request, res: express.Response): Promise<void> {
@@ -53,6 +56,7 @@ export async function logout(req: express.Request, res: express.Response): Promi
 }
 
 baseRouter.post('/logout', logout);
-baseRouter.use('/api/v1/test', EmployeeRouter);
+baseRouter.use('/api/v1/employees', EmployeeRouter);
+baseRouter.use('/api/v1/reimbursements', ReimbursementRouter);
 
 export default baseRouter;
