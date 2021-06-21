@@ -21,7 +21,7 @@ ReimbursementRouter.get('/', async (req, res) => {
 
   if(reimbursements) {
     Log.info('Sent response to client.');
-    res.json([reimbursements]);
+    res.json(reimbursements);
   } else {
     Log.info('Sent error status to client.');
     res.sendStatus(404);
