@@ -15,7 +15,7 @@ import { RequestStatus, RequestEvent } from './my_types';
  */
 export default class ReimbursmentRequest {
   constructor(
-    public requestId: number,
+    public myRequestId: number,
     public employeeId: number,
     public eventType: RequestEvent,
     public eventLocation: string,

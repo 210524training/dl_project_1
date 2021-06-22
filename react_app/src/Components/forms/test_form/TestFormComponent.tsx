@@ -1,8 +1,8 @@
 import React, {ChangeEvent, FormEvent, useState } from "react";
 import { Link, useHistory } from "react-router-dom";
-import ExpressClient from '../../remote/express_backend/express.client';
-import { useAppDispatch } from '../../hooks';
-import { loginAsync } from '../../slices/EmployeeSlice';
+import ExpressClient from '../../../remote/express_backend/express.client';
+import { useAppDispatch } from '../../../hooks';
+import { loginAsync } from '../../../slices/EmployeeSlice';
 
 type Props = {
   amount?: number;

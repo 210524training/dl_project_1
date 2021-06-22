@@ -4,14 +4,12 @@ import Employee from '../models/employee';
 import EmployeeSecure from '../models/employee_secure';
 import * as Database from '../services/database_service';
 import EmployeeRouter from './employee_router';
-import ReimbursementRouter from './reimbursement_router';
+import BencoRouter from './reimbursements/bencoRouter';
+import DepartmentHeadRouter from './reimbursements/departmentHeadRouter';
+import ManagerRouter from './reimbursements/managerRouter';
+import ReimbursementRouter from './reimbursements/reimbursement_router';
 
 const baseRouter = Router();
-
-async function getEmployee(employee: Employee) {
-  const result = await Database.addEmployee(employee);
-  console.log(result);
-}
 
 /* GET home page */
 baseRouter.get('/', (req, res) => {
@@ -58,5 +56,8 @@ export async function logout(req: express.Request, res: express.Response): Promi
 baseRouter.post('/logout', logout);
 baseRouter.use('/api/v1/employees', EmployeeRouter);
 baseRouter.use('/api/v1/reimbursements', ReimbursementRouter);
+baseRouter.use('/api/v1/manager', ManagerRouter);
+baseRouter.use('/api/v1/departmentHead', DepartmentHeadRouter);
+baseRouter.use('/api/v1/benco', BencoRouter);
 
 export default baseRouter;

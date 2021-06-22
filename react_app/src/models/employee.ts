@@ -1,7 +1,6 @@
-/**
- * Represent the employee role in the company.
- */
- export type Role = 'Employee' | 'Manager' | 'DepartmentHead' | 'Benifits Coordinator';
+import { Role } from "../types/MyTypes";
+
+
  /**
   * Represents the companys departments.
   */

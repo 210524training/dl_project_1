@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-shadow */
 /* eslint-disable max-len */
 /* eslint-disable import/prefer-default-export */
 // handles database interaction
@@ -71,20 +72,20 @@ export async function updateEmployee(employee: Employee): Promise<boolean> {
  */
 export async function addRequest(request: ReimbursmentRequest): Promise<boolean> {
   // console.log(car.price);
-  
+
   const params: AWS.DynamoDB.DocumentClient.PutItemInput = {
-    TableName: 'P1_Requests',
+    TableName: 'test',
     Item: request,
   };
 
   try {
     await docClient.put(params).promise();
-    Log.info(`Added Request: ${request.requestId} without an error.`);
+    Log.info(`Added Request: ${request.myRequestId} without an error.`);
 
     // console.log('success');
     return true;
   } catch(error) {
-    Log.error(`Error on addRequest: ${request.requestId} attempt. `, error);
+    Log.error(`Error on addRequest: ${request.myRequestId} attempt. `, error);
     return false;
   }
 }
@@ -98,18 +99,18 @@ export async function updateRequest(request: ReimbursmentRequest): Promise<boole
   // console.log(car.price);
 
   const params: AWS.DynamoDB.DocumentClient.PutItemInput = {
-    TableName: 'P1_Requests',
+    TableName: 'test',
     Item: request,
   };
 
   try {
     await docClient.put(params).promise();
-    Log.info(`Updated Request: ${request.requestId} without an error.`);
+    Log.info(`Updated Request: ${request.myRequestId} without an error.`);
 
     // console.log('success');
     return true;
   } catch(error) {
-    Log.error(`Error on updateRequest: ${request.requestId} attempt. `, error);
+    Log.error(`Error on updateRequest: ${request.myRequestId} attempt. `, error);
     return false;
   }
 }
@@ -159,32 +160,25 @@ export async function getEmployee(inputId: number): Promise<EmployeeSecure | und
  * @returns ReimbursmentRequest | undefined
  */
 export async function getRequest(inputId: number): Promise<ReimbursmentRequest | undefined> {
-  const params: AWS.DynamoDB.DocumentClient.GetItemInput = {
-    TableName: 'P1_Requests',
-    Key: {
-      requestId: inputId,
-    },
-    ProjectionExpression: '#id, #eid, #etp, #el, #ed, #etm, #ec, #st, #en',
+  const params: AWS.DynamoDB.DocumentClient.ScanInput = {
+    TableName: 'test',
+    FilterExpression: '#mr = :mr',
     ExpressionAttributeNames: {
-      '#id': 'requestId',
-      '#eid': 'employeeId',
-      '#etp': 'eventType',
-      '#el': 'eventLocation',
-      '#ed': 'eventDate',
-      '#etm': 'eventTime',
-      '#ec': 'eventCost',
-      '#st': 'status',
-      '#en': 'extraNotes',
+      '#mr': 'myRequestId',
+    },
+    ExpressionAttributeValues: {
+      ':mr': inputId,
     },
   };
 
   try {
-    const returnRequest = await docClient.get(params).promise();
+    const returnRequest = await docClient.scan(params).promise();
 
-    if(returnRequest.Item?.employeeId) {
-      Log.info(`Retrived Request: ${returnRequest.Item.requestId} with out an error.`);
+    if(returnRequest.Items) {
+      console.log(returnRequest.Items);
+      Log.info(`Retrived Request: ${returnRequest.Items} with out an error.`);
 
-      return returnRequest.Item as ReimbursmentRequest | undefined;
+      return returnRequest.Items[0] as ReimbursmentRequest | undefined;
     }
   } catch(error) {
     Log.error(`Error on getRequest: ${inputId} attempt. `, error);
@@ -201,7 +195,7 @@ export async function getRequest(inputId: number): Promise<ReimbursmentRequest |
  */
 export async function getMyRequests(inputId: number): Promise<ReimbursmentRequest[] | undefined> {
   const params: AWS.DynamoDB.DocumentClient.ScanInput = {
-    TableName: 'P1_Requests',
+    TableName: 'test',
     FilterExpression: '#eid = :eid',
     ExpressionAttributeNames: {
       '#eid': 'employeeId',
@@ -295,5 +289,105 @@ export async function checkLogin(username: string, password: string): Promise<Em
     Log.error(`Error on checkLogin: ${username} attempt. `, error);
   }
   Log.info(`Did not find 'Employee: ${username}`);
+  return undefined;
+}
+
+/**
+ * Retrives all requests of an employee.
+ * @param managerId The EmployeeId of the manager requesting the items that will be retrived. (number)
+ * @returns ReimbursmentRequest[] | undefined
+ */
+export async function getPendingManager(managerId: number): Promise<ReimbursmentRequest[] | undefined> {
+  const params: AWS.DynamoDB.DocumentClient.ScanInput = {
+    TableName: 'test',
+    FilterExpression: '#s = :s',
+    ExpressionAttributeNames: {
+      '#s': 'status',
+    },
+    ExpressionAttributeValues: {
+      ':s': 'Pending Managers Approval',
+    },
+  };
+
+  try {
+    const returnRequest = await docClient.scan(params).promise();
+    const requests = returnRequest.Items as ReimbursmentRequest[];
+    if(requests.length > 0) {
+      Log.info('Retrived MyRequests with out an error.');
+
+      return requests as ReimbursmentRequest[] | undefined;
+    }
+  } catch(error) {
+    Log.error(`Error on getManagerTodo: ${managerId} attempt. `, error);
+    return undefined;
+  }
+  Log.info(`Did not find requests: ${managerId}`);
+  return undefined;
+}
+
+/**
+ * Retrives all requests pending departmenthead approval.
+ * @param managerId The EmployeeId of the manager requesting the items that will be retrived. (number)
+ * @returns ReimbursmentRequest[] | undefined
+ */
+export async function getPendingDepartmentHead(managerId: number): Promise<ReimbursmentRequest[] | undefined> {
+  const params: AWS.DynamoDB.DocumentClient.ScanInput = {
+    TableName: 'test',
+    FilterExpression: '#s = :dh',
+    ExpressionAttributeNames: {
+      '#s': 'status',
+    },
+    ExpressionAttributeValues: {
+      ':dh': 'Pending DepartmentHeads Approval',
+    },
+  };
+
+  try {
+    const returnRequest = await docClient.scan(params).promise();
+    const requests = returnRequest.Items as ReimbursmentRequest[];
+    if(requests.length > 0) {
+      Log.info('Retrived departmentHeads todo with out an error.');
+
+      return requests as ReimbursmentRequest[] | undefined;
+    }
+  } catch(error) {
+    Log.error(`Error on getManagerTodo: ${managerId} attempt. `, error);
+    return undefined;
+  }
+  Log.info(`Did not find requests: ${managerId}`);
+  return undefined;
+}
+
+/**
+ * Retrives all requests pending departmenthead approval.
+ * @param managerId The EmployeeId of the manager requesting the items that will be retrived. (number)
+ * @returns ReimbursmentRequest[] | undefined
+ */
+export async function getPendingBenco(managerId: number): Promise<ReimbursmentRequest[] | undefined> {
+  const params: AWS.DynamoDB.DocumentClient.ScanInput = {
+    TableName: 'test',
+    FilterExpression: '#s = :bc OR #s = :pg',
+    ExpressionAttributeNames: {
+      '#s': 'status',
+    },
+    ExpressionAttributeValues: {
+      ':bc': 'Pending Benifits Coordinators Approval',
+      ':pg': 'Pending - Grades Approval',
+    },
+  };
+
+  try {
+    const returnRequest = await docClient.scan(params).promise();
+    const requests = returnRequest.Items as ReimbursmentRequest[];
+    if(requests.length > 0) {
+      Log.info('Retrived Benco todo with out an error.');
+
+      return requests as ReimbursmentRequest[] | undefined;
+    }
+  } catch(error) {
+    Log.error(`Error on BencoTodo: ${managerId} attempt. `, error);
+    return undefined;
+  }
+  Log.info(`Did not find BencoTodo: ${managerId}`);
   return undefined;
 }

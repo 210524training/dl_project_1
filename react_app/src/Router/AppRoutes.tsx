@@ -1,7 +1,8 @@
 import React from 'react';
 import { Redirect, Route, Switch } from 'react-router-dom';
-import TestFormComponent from '../Components/test_form/TestFormComponent';
-import TestPageComponent from '../Components/test_page/TestPageComponent';
+import CreateRequestFormComponent from '../Components/forms/create_request_form/CreateRequestFormComponent';
+import TestFormComponent from '../Components/forms/test_form/TestFormComponent';
+import HomePageComponent from '../Components/pages/home_page/HomePageComponent';
 
 const AppRoutes: React.FC<unknown> = (props) => {
 
@@ -11,12 +12,14 @@ const AppRoutes: React.FC<unknown> = (props) => {
         <TestFormComponent />
       </Route>
       <Route exact path='/main'>
-        <TestPageComponent />
+        <HomePageComponent />
       </Route>
-     
-      <Route path='/'>
+      <Route exact path='/main/createRequest'>
+        <CreateRequestFormComponent />
+      </Route>
+      {/* <Route path='/'>
         <Redirect to='/' />
-      </Route>
+      </Route> */}
     </Switch>
   );
 };

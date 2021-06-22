@@ -33,10 +33,10 @@
  */
  export default class ReimbursmentRequest {
   constructor(
-    public requestId: number,
+    public myRequestId: number,
     public employeeId: number,
     public eventType: RequestEvent,
-    public eventLocation: string,
+    public eventLocation: string, 
     public eventDate: string,
     public eventTime: string,
     public eventCost: number,

@@ -16,9 +16,10 @@ export type RequestStatus =
   'Pending Employee Response to DepartmentHead' |
   'Pending Benifits Coordinators Approval' |
   'Pending Employee Response to Benifits Coordinator' |
-  'Pending Manager Response to ManBenifits Coordinatorager' |
+  'Pending Manager Response to Benifits Coordinator' |
   'Pending DepartmentHead Response to Benifits Coordinator' |
   'Approved - Pending Grades' |
+  'Pending - Grades Approval' |
   'Awarded' |
   'Rejected';
 /**
@@ -28,4 +29,4 @@ export type Role = 'Employee' | 'Manager' | 'DepartmentHead' | 'Benifits Coordin
 /**
  * Represents the companys departments.
  */
-export type Department = 'Marketing' | 'Shipping' | 'IT' | 'Human Resoures';
+export type Department = 'Marketing' | 'Shipping' | 'IT' | 'HR';

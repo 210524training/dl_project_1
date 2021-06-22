@@ -1,7 +1,8 @@
 import express, { Router } from 'express';
-import Log from '../log';
-import ReimbursmentRequest from '../models/reimburse_request';
-import * as ReimburseService from '../services/reimburse_request_service';
+import Log from '../../log';
+import ReimbursmentRequest from '../../models/reimburse_request';
+import * as ReimburseService from '../../services/reimburse_request_service';
+import ManagerRouter from './managerRouter';
 
 const ReimbursementRouter = Router();
 
@@ -9,7 +10,7 @@ const ReimbursementRouter = Router();
  * Handles requests to get an Employees reimbursmentRequests.
  */
 ReimbursementRouter.get('/', async (req, res) => {
-  Log.info('Request hit EmployeeRouter: get/ ');
+  Log.info('Request hit ReimbursementRouter: get/ ');
 
   if(!req.session.isLoggedIn || !req.session.employee) {
     throw new Error('You must be logged in to access this functionality');
@@ -27,6 +28,26 @@ ReimbursementRouter.get('/', async (req, res) => {
     res.sendStatus(404);
   }
 });
+
+/* ReimbursementRouter.get('/customer', async (req, res) => {
+  Log.info('Request hit EmployeeRouter: get/ ');
+
+  if(!req.session.isLoggedIn || !req.session.employee) {
+    throw new Error('You must be logged in to access this functionality');
+  }
+
+  const { employeeId } = req.session.employee;
+  Log.debug(`Current userId: ${employeeId}`);
+  const reimbursements = await ReimburseService.getMyRequests(employeeId);
+
+  if(reimbursements) {
+    Log.info('Sent response to client.');
+    res.json(reimbursements);
+  } else {
+    Log.info('Sent error status to client.');
+    res.sendStatus(404);
+  }
+}); */
 
 /**
  * Handles requests to get Employee by Id.
@@ -51,15 +72,15 @@ ReimbursementRouter.get('/:id', async (req, res) => {
 /**
  * Handles requests to add a ReimbursmentRequest.
  */
-ReimbursementRouter.post('/', async (req: express.Request<unknown, unknown, ReimbursmentRequest, unknown, {}>, res) => {
+ReimbursementRouter.post('/', async (req: express.Request<unknown, unknown, { request: ReimbursmentRequest }, unknown, {}>, res) => {
   Log.info('Request hit EmployeeRouter: post/ ');
-
+  const { request } = req.body;
   if(!req.session.isLoggedIn || !req.session.employee) {
     throw new Error('You must be logged in to access this functionality');
   }
 
   // eslint-disable-next-line max-len
-  const result: boolean = await ReimburseService.addReimbursRequest(req.body as ReimbursmentRequest);
+  const result: boolean = await ReimburseService.addReimbursRequest(request);
 
   if(result) {
     res.sendStatus(202);
