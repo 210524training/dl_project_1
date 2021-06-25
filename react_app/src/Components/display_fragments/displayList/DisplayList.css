@@ -1,0 +1,13 @@
+.listItem {
+  margin:  50px;
+  border-style: solid;
+}
+
+.Item {
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
+.ItemTitle {
+  font-weight: bold;
+}

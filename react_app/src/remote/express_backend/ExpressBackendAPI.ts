@@ -63,3 +63,38 @@ export const sendCreateRequest = async (request: ReimbursmentRequest): Promise<A
   });
   return result;  
 }
+
+export const sendRejectRequest = async (requestId: number): Promise<AxiosResponse> => {
+  const result = await ExpressClient.patch<boolean>('/api/v1/reimbursements/reject', {
+    requestId: requestId
+  });
+  return result;  
+}
+
+export const sendUpdateRequest = async (requestId: string, note: string) => {
+  await ExpressClient.patch<boolean>('/api/v1/reimbursements/notes', {
+    requestId: requestId,
+    note: note
+  })
+  .then((res) => {
+    alert("Update Success");
+  })
+  .catch((err) => {
+    alert("File Upload Error")
+  });  
+}
+
+export const sendUploadFile = async (file: any) => {
+  const formData = new FormData();
+  formData.append("file", file[0]);
+
+  console.log('sendFile File', file);
+  console.log('sendFile FormData', formData);
+    
+  /* ExpressClient
+    .post('/uploadFile', formData)
+    .then((res) => {
+      alert("File Upload success");
+    })
+    .catch((err) => alert("File Upload Error")); */
+}

@@ -45,6 +45,7 @@ export const EmployeeSlice = createSlice({
       })
       .addCase(loginAsync.rejected, (state, action) => {
         console.log(action.error);
+
       });
   },
 });

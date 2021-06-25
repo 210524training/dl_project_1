@@ -29,6 +29,7 @@ import { Role } from "../types/MyTypes";
     public lastName: string,
     public role: Role,
     public managerId: number,
+    public balance: number,
   ) {}
 }
 

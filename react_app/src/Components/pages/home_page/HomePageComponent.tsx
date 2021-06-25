@@ -3,7 +3,7 @@ import React, { MouseEventHandler, useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
 import { brotliCompress } from "zlib";
 import { useAppSelector} from "../../../hooks";
-import { sendBencoApproveRequest, sendDepartmentHeadApproveRequest, sendGetMyRequests, sendManagerApproveRequest } from "../../../remote/express_backend/ExpressBackendAPI";
+import { sendBencoApproveRequest, sendDepartmentHeadApproveRequest, sendGetMyRequests, sendManagerApproveRequest, sendRejectRequest } from "../../../remote/express_backend/ExpressBackendAPI";
 import { selectEmployee, EmployeeState } from '../../../slices/EmployeeSlice';
 import { Role } from "../../../types/MyTypes";
 import BencoHomeComponent from "./BencoHomeComponent";
@@ -24,6 +24,7 @@ const TestPageComponent: React.FC<Props> = ({ amount = 1}) => {
   const history = useHistory();
   useEffect(() => {
       (() => { 
+        console.log(employee?.firstName);
         if(!employee) {
           console.log('Not Logged In!');
           history.push('/');
@@ -35,34 +36,34 @@ const TestPageComponent: React.FC<Props> = ({ amount = 1}) => {
     history.push('/main/createRequest');
     return;
   }
-  const ApproveHandler = async (requestId: number, level: Role) => {
-    switch(level) {
-      case Role.MANAGER:
-        await sendManagerApproveRequest(requestId, level);
-        break;
-      case Role.DEPARTMENT_HEAD:
-        await sendDepartmentHeadApproveRequest(requestId, level);
-        break;
-    }
-    return;
-  }
+  
+
+  
   
   switch(employee?.role) {
     case Role.EMPLOYEE:
       return (
+        <div className='container'>
           <EmployeeHomeComponent createRequestHandler={createRequestHandler}/>
+        </div>
       )
     case Role.MANAGER:
       return (
-          <ManagerHomeComponent createRequestHandler={createRequestHandler} ApproveHandler={ApproveHandler}/>
+        <div className='container'>
+          <ManagerHomeComponent createRequestHandler={createRequestHandler}/>
+        </div>
       )
     case Role.DEPARTMENT_HEAD:
       return (
+        <div className='container'>
           <DepartHeadHomeComponent createRequestHandler={createRequestHandler}/>
+        </div>
       )
     case Role.BENIFITS_COORDINATOR: 
       return (
-          <BencoHomeComponent />
+        <div className='container'>
+           <BencoHomeComponent/>
+        </div>
       )
     default:
       return (
